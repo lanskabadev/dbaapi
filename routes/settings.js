@@ -14,6 +14,7 @@ router.post("/", async (req, res) => {
     img: req.body.img,
     desc: req.body.desc,
   });
+
   try {
     const savedSetting = await newSetting.save();
     res.status(200).json(savedSetting);
@@ -42,9 +43,17 @@ router.put("/", async (req, res) => {
       instagram: req.body.instagram,
       facebook: req.body.facebook,
       youtube: req.body.youtube,
-      img: req.body.img,
       desc: req.body.desc,
     };
+    if ("img" in req.body) {
+      data.img = req.body.img;
+      const path = setting.img;
+      try {
+        fs.unlinkSync("public/uploads/" + path);
+      } catch (err) {
+        res.status(403).json({ erro: err });
+      }
+    }
 
     await setting.updateOne({ $set: data });
     res.status(200).json("The Settings has been updated");
